@@ -1,0 +1,65 @@
+@echo off
+::Menu block
+:MENU
+echo                               =========================================================
+echo                                                         MENU
+echo                               =========================================================
+echo                                          ===================================
+echo                                                   SELECT AN OPTION
+echo                                          ===================================
+echo.
+echo.
+echo                                           1. Create backup of a file/files.
+echo                                           2. Exit
+
+set /p choice=Choose an option then press ENTER:
+
+if "%choice%"=="1" (
+GOTO BACKUP
+) else (
+if "%choice%"=="2" (
+exit
+) else (
+cls
+echo Invalid Choice
+GOTO MENU
+)
+)
+
+:BACKUP
+C:
+::Choose Source
+echo Please choose a source file/folder to backup.
+set "chooser="(new-object -COM 'Shell.Application')^
+.BrowseForFolder(0,'Please choose a folder.',0,0).self.path""
+for /f "usebackq delims=" %%I in (`powershell %chooser%`) do set "source=%%I"
+echo You chose %source%
+::End of Source Selection
+
+::Choose Destination
+echo Please choose a destination folder for your backup.
+set "chooser="(new-object -COM 'Shell.Application')^
+.BrowseForFolder(0,'Please choose a folder.',0,0).self.path""
+for /f "usebackq delims=" %%I in (`powershell %chooser%`) do set "destination=%%I"
+echo You chose %destination%
+::End of Destination Selection
+
+if exist %source% ( 
+xcopy %source% %destination% /e /h /i /y
+cls
+echo                               =========================================================
+echo							       SUCCESS
+echo                               =========================================================
+timeout 5 > NUL
+cls
+goto MENU
+) else (
+cls
+echo                               =========================================================
+echo							      ERROR
+echo                               =========================================================
+timeout 5 > NUL
+cls
+goto MENU
+)
+pause
